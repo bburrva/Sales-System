@@ -79,9 +79,16 @@ public class Main {
                 res.redirect("/");
                 return "";
             } else {
+                res.redirect("login-error.html");
                 return "";
             }
         }));
+
+        Spark.get("login-error.html", ((req, res) -> {
+            HashMap m = new HashMap();
+            m.put("users", selectUser(conn));
+            return new ModelAndView(m, "login-error.html");
+        }), new MustacheTemplateEngine());
     }
 
     public static ArrayList<User> selectUser (Connection conn) throws SQLException {
