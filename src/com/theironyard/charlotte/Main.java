@@ -7,6 +7,7 @@ import spark.Session;
 import spark.Spark;
 import spark.template.mustache.MustacheTemplateEngine;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ public class Main {
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS users (id IDENTITY, name VARCHAR, userName VARCHAR, password VARCHAR, email VARCHAR, streetAddress VARCHAR, city VARCHAR, " +
                 "state VARCHAR, zipCode INTEGER, phoneNumber VARCHAR)");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS items (id IDENTITY, name VARCHAR, price DECIMAl(20,2))");
 
 //        stmt.execute("SELECT * FROM users ORDER BY ID");
 
@@ -89,6 +92,13 @@ public class Main {
             m.put("users", selectUser(conn));
             return new ModelAndView(m, "login-error.html");
         }), new MustacheTemplateEngine());
+
+        Spark.post("create-item", ((req, res) -> {
+            String name = req.queryParams("name");
+            BigDecimal price = BigDecimal.valueOf(Double.valueOf(req.queryParams("price")));
+            insertItem(conn, name, price);
+            return "";
+        }));
     }
 
     public static ArrayList<User> selectUser (Connection conn) throws SQLException {
@@ -165,5 +175,13 @@ public class Main {
             user = new User(id, name, userName, password, email, streetAddress, city, state, zipCode, phoneNumber);
         }
         return user;
+    }
+
+    public static Item insertItem (Connection conn, String name, BigDecimal price) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO items VALUES(null, ?, ?)");
+        stmt.setString(1, name);
+        stmt.setBigDecimal(2, price);
+        stmt.execute();
+        return null;
     }
 }

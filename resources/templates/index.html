@@ -6,5 +6,26 @@
 </head>
 <body>
 Welcome {{userName}}!
+
+Order Form:
+{{#items}}
+<table>
+    <tr align="center">
+        <td>{{name}}</td>
+        <td>{{price}}</td>
+        <td><form action="/add-item/{{id}}" method="post">
+            <input type="number" placeholder="quantity" name="quantity"/>
+        </form></td>
+        <td><form action="/add-item/{{id}}" method="post">
+            <button type="submit">Add to Cart</button>
+        </form> </td>
+    </tr>
+</table>
+{{/items}}
+<form action="/create-item" method="post">
+    <input type="text" placeholder="Name of Item" name="name"/>
+    <input type="number" placeholder="Price per unit" name="price"/>
+    <input type="number" placeholder="quantity" name="quantity"/>
+</form>
 </body>
 </html>
