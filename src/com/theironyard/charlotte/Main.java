@@ -5,13 +5,15 @@ import org.h2.tools.Server;
 import spark.ModelAndView;
 import spark.Session;
 import spark.Spark;
+import spark.template.mustache.MustacheTemplateEngine;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
-    static User user;
+    static final String FLASH_MESSAGE = "message";
+
 
     public static void main(String[] args) throws SQLException{
 
@@ -23,16 +25,17 @@ public class Main {
 
 //        stmt.execute("SELECT * FROM users ORDER BY ID");
 
-        Spark.get("/", (request, response) -> {
+        Spark.get("/", ((request, response) -> {
             HashMap m = new HashMap();
-            m.put("users", selectUser(conn));
+            String userName = request.session().attribute("userName");
 
-             if (user==null) {
+             if (userName == null) {
                  return new ModelAndView(m, "login.html");
              } else {
+                 m.put("userName", userName);
                  return new ModelAndView(m, "index.html");
              }
-        });
+        }), new MustacheTemplateEngine());
 
         Spark.post("/create-user", (req, res) -> {
             String name = req.queryParams("name");
@@ -55,21 +58,24 @@ public class Main {
             return "";
         });
 
-        Spark.post("/login",(req, res)->{
-            String message = "";
+        Spark.post("/login",((req, res)->{
+            req.session().attribute(FLASH_MESSAGE);
+            String message = req.session().attribute(FLASH_MESSAGE);
+            req.session().removeAttribute(FLASH_MESSAGE);
+            String verify = "";
             String userName = req.queryParams("userName");
             String password = req.queryParams("password");
-            loginUser(conn, userName, password);
-            String[] result = loginUser(conn, userName, password);
+            String result = loginUser(conn, userName, password, verify, message);
+            User current = setUserByUserName(conn, userName);
 
-
-            if (result[0].equals("1")) {
-                return new ModelAndView(result, "index.html");
+            if (result.equals("1")) {
+                req.session().attribute("userName", userName);
+                res.redirect("/");
+                return "";
             } else {
-                req.session().attribute("Message");
+                return "";
             }
-            return "";
-        });
+        }));
     }
 
     public static ArrayList<User> selectUser (Connection conn) throws SQLException {
@@ -109,22 +115,42 @@ public class Main {
         return user;
     }
 
-    public static String[] loginUser(Connection conn, String userName, String password) throws SQLException {
+    public static String loginUser(Connection conn, String userName, String password, String message, String verify) throws SQLException {
 
-        String message = "Username or password incorrect";
-        String verify = "0";
-        PreparedStatement stmt = conn.prepareStatement("SELECT userName, password FROM users WHERE username=?");
-//        Statement stmt = conn.createStatement();
+        message = "";
+        verify = "0";
+        PreparedStatement stmt = conn.prepareStatement("SELECT password FROM users WHERE username= ?");
         stmt.setString(1, userName);
         ResultSet result = stmt.executeQuery();
         while (result.next()) {
-            if (result.getString("password") == password) {
+            if (result.getString("password").equals(password)) {
                 verify = "1";
-                message = "";
+                message = "1";
             } else if (result.getString("password") != password) {
                 verify = "0";
             }
         }
-        return new String[] {verify, message};
+        return verify;
+    }
+
+    public static User setUserByUserName (Connection conn, String userName) throws SQLException {
+        User user = null;
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE username = ?");
+        stmt.setString(1, userName);
+
+        ResultSet results = stmt.executeQuery();
+        if (results.next()) {
+            int id = results.getInt("id");
+            String name = results.getString("name");
+            String password = results.getString("password");
+            String email = results.getString("email");
+            String streetAddress = results.getString("streetAddress");
+            String city = results.getString("city");
+            String state = results.getString("state");
+            int zipCode = results.getInt("zipCode");
+            String phoneNumber = results.getString("phoneNumber");
+            user = new User(id, name, userName, password, email, streetAddress, city, state, zipCode, phoneNumber);
+        }
+        return user;
     }
 }

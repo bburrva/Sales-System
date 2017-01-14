@@ -6,10 +6,11 @@
 </head>
 <body>
 Please Login:
-<form action="/" method="post">
+<form action="/login" method="post">
     <input type="text" placeholder="User Name" name="userName" required/>
-    <input type="password" placeholder="password" name="password"required/>
-    <button type="submit"Login/>
+    <input type="text" placeholder="password" name="password" required/>
+    <button type="submit">Login</button>
 </form>
+<div>{{message}}</div>
 </body>
 </html>
