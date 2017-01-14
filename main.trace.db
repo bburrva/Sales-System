@@ -406,3 +406,6 @@ org.h2.jdbc.JdbcSQLException: Column "tiycharlotte" not found [42122-189]
 	at java.lang.Thread.run(Thread.java:745)
 2017-01-14 15:30:55 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: No data is available [2000-189]
+2017-01-14 17:05:53 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "REMOVE[*] * FROM USERS WHERE ID = '4' "; expected "ROLLBACK, REVOKE, RUNSCRIPT, RELEASE, REPLACE, {"; SQL statement:
+remove * from users where id = '4' [42001-189]

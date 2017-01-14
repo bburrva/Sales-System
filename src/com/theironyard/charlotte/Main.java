@@ -37,6 +37,12 @@ public class Main {
              }
         }), new MustacheTemplateEngine());
 
+        Spark.get("/create-user", ((req, res) -> {
+            HashMap m = new HashMap();
+            m.put("users", selectUser(conn));
+            return new ModelAndView(m, "register.html");
+        }), new MustacheTemplateEngine());
+
         Spark.post("/create-user", (req, res) -> {
             String name = req.queryParams("name");
             String userName = req.queryParams("userName");
@@ -47,10 +53,10 @@ public class Main {
             String state = req.queryParams("state");
             int zipCode = Integer.valueOf(req.queryParams("zipCode"));
             String phoneNumber = req.queryParams("phoneNumber");
-            User newUser = insertUser(conn, name, userName, password, email, streetAddress, city, state, zipCode, phoneNumber);
+//            User newUser = insertUser(conn, name, userName, password, email, streetAddress, city, state, zipCode, phoneNumber);
 
-            newUser.setId(Integer.valueOf(req.queryParams("id")));
-            newUser.setName(req.queryParams("name"));
+//            newUser.setId(Integer.valueOf(req.queryParams("id")));
+//            newUser.setName(req.queryParams("name"));
 
             insertUser(conn, name, userName, password, email, streetAddress, city, state, zipCode, phoneNumber);
 
