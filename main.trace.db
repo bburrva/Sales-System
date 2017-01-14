@@ -1,0 +1,6 @@
+2017-01-13 23:41:23 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "INSET[*] INTO USERS VALUES(NULL, BENJAMIN BURR, BBURRVA, TIYCHARLOTTE, BBURRVA@GMAIL.COM, 8178 CAMELIA LN, DENVER, NC, 28037, 571-288-5926) "; expected "INSERT, {"; SQL statement:
+INSET INTO users VALUES(null, Benjamin Burr, bburrva, tiycharlotte, bburrva@gmail.com, 8178 Camelia Ln, Denver, NC, 28037, 571-288-5926) [42001-189]
+2017-01-13 23:41:34 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "INSERT INTO USERS VALUES(NULL, BENJAMIN BURR[*], BBURRVA, TIYCHARLOTTE, BBURRVA@GMAIL.COM, 8178 CAMELIA LN, DENVER, NC, 28037, 571-288-5926) "; expected "., (, [, ::, *, /, %, +, -, ||, ~, !~, NOT, LIKE, REGEXP, IS, IN, BETWEEN, AND, OR, ,, )"; SQL statement:
+INSERT INTO users VALUES(null, Benjamin Burr, bburrva, tiycharlotte, bburrva@gmail.com, 8178 Camelia Ln, Denver, NC, 28037, 571-288-5926) [42001-189]
