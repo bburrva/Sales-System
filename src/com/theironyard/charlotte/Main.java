@@ -1,5 +1,6 @@
 package com.theironyard.charlotte;
 
+import com.sun.org.apache.xpath.internal.operations.Or;
 import org.h2.command.Prepared;
 import org.h2.engine.Mode;
 import org.h2.tools.Server;
@@ -40,11 +41,26 @@ import java.util.List;
     }
 
         private static List<Order> getOrdersForUser(Integer userId) throws SQLException {
+            List<Order> orderList = new ArrayList<>();
             PreparedStatement stmt = getConnection().prepareStatement("select * from orders where user_id = ?");
 
             stmt.setInt(1, userId);
-            // so on and so forth.
-            return new ArrayList<>();
+            ResultSet results = stmt.executeQuery();
+            while (results.next()) {
+                orderList.add(new Order(results.getInt("id"), results.getInt("user_id"), results.getBoolean("complete")));
+            }
+            return orderList;
+        }
+
+        private static List<Item> getItemsForOrder(Integer orderId) throws SQLException {
+            List<Item> itemList = new ArrayList<>();
+            PreparedStatement stmt = getConnection().prepareStatement("SELECT * FROM items where order_id = ?");
+            stmt.setInt(1, orderId);
+            ResultSet results = stmt.executeQuery();
+            while(results.next()) {
+                itemList.add(new Item(results.getString("name"), results.getInt("quantity"), results.getDouble("price"), results.getInt("order_id")));
+            }
+            return itemList;
         }
 
         public static User insertUser(String name, String email) throws SQLException{
@@ -102,7 +118,7 @@ import java.util.List;
                 ResultSet results = stmt.executeQuery();
 
                 if (results.next()) {
-                    order = new Order(results.getInt("id"), results.getInt("user_id"), false);
+                    order = new Order(results.getInt("id"), results.getInt("user_id"), results.getBoolean("complete"));
                 }
             }
 
@@ -123,11 +139,14 @@ import java.util.List;
         }
 
         private static int insertItem(Item item) throws SQLException{
-            PreparedStatement stmt = getConnection().prepareStatement("INSERT INTO items VALUES(null, ?)");
-//            stmt.setInt(1, item);
+            PreparedStatement stmt = getConnection().prepareStatement("INSERT INTO items VALUES(null, ?, ?, ?, ?)");
+            stmt.setString(1, item.getName());
+            stmt.setInt(2, item.getQuantity());
+            stmt.setDouble(3, item.getPrice());
+            stmt.setInt(4, item.getOrderId());
             stmt.execute();
 
-            return 1;
+            return item.getId();
         }
 
         public static void main(String[] args) throws SQLException {
@@ -169,8 +188,9 @@ import java.util.List;
                     // pass user into model
                     model.put("user", current);
                     model.put("order_id", insertOrder(current.getId()));
+                    model.put("items", getItemsForOrder(current.getId()));
 
-//                session.attribute("orderid", insertOrder(current.getId()));
+                session.attribute("orderid", insertOrder(current.getId()));
 
                     return new ModelAndView(model, "index.html");
                 } else {
